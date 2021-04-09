@@ -1,4 +1,4 @@
-reiter.upload
-*************
+reiter.password
+***************
 
-Utilities to upload files to WSGI applications.
+Password and token utilities
