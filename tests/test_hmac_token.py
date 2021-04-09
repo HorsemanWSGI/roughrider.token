@@ -10,7 +10,7 @@ tomorrow = datetime.date(2021, 4, 10)
 week_later = datetime.date(2021, 4, 16)
 
 
-def test_hashtokenfactory_instanciation():
+def test_autodeprecatingtokenfactory_instanciation():
     factory = AutoDeprecatingTokenFactory('md5', b'secret')
     assert factory.validity == 3
     assert factory.secret == b'secret'
@@ -20,7 +20,7 @@ def test_hashtokenfactory_instanciation():
         AutoDeprecatingTokenFactory('unknown', b'secret')
 
 
-def test_hashtokenfactory_generate_token():
+def test_autodeprecatingtokenfactory_generate_token():
     factory = AutoDeprecatingTokenFactory('md5', b'secret')
 
     with freeze_time(today):
@@ -32,7 +32,7 @@ def test_hashtokenfactory_generate_token():
         assert token == 'de42be9c9a6946e860f8f12e030c1837'
 
 
-def test_hashtokenfactory_verify_token():
+def test_autodeprecatingtokenfactory_verify_token():
     factory = AutoDeprecatingTokenFactory('md5', b'secret')
     with freeze_time(today):
         token = factory.generate('my word')
