@@ -14,13 +14,13 @@ test_requires = [
 
 
 setup(
-    name='reiter.password',
+    name='reiter.token',
     version=version,
     author='Souheil CHELFOUH',
     author_email='trollfot@gmail.com',
     url='http://gitweb.dolmen-project.org',
-    download_url='http://pypi.python.org/pypi/reiter.password',
-    description='Password utilities',
+    download_url='http://pypi.python.org/pypi/reiter.token',
+    description='Token utilities',
     long_description=(open("README.txt").read() + "\n" +
                       open(os.path.join("docs", "HISTORY.txt")).read()),
     license='ZPL',

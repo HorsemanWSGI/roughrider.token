@@ -1,4 +1,4 @@
-reiter.password
-***************
+reiter.token
+************
 
-Password and token utilities
+Utilities to generate and verify tokens (autodeprecating or not).

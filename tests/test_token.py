@@ -1,7 +1,8 @@
 import pytest
 import datetime
 from freezegun import freeze_time
-from reiter.password.token import HashTokenFactory, Algorithm
+from reiter.token import Algorithm
+from reiter.token.hmac_factories import AutoDeprecatingTokenFactory
 
 
 today = datetime.date(2021, 4, 9)
@@ -41,7 +42,7 @@ def test_hashtokenfactory_verify_token():
 
     with freeze_time(tomorrow):
         # After a day, the token is still valid
-        assert factory.verify('my word',token ) is True
+        assert factory.verify('my word',token) is True
 
     with freeze_time(week_later):
         # After a week, the token is no longer valid
