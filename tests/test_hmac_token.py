@@ -42,7 +42,7 @@ def test_hashtokenfactory_verify_token():
 
     with freeze_time(tomorrow):
         # After a day, the token is still valid
-        assert factory.verify('my word',token) is True
+        assert factory.verify('my word', token) is True
 
     with freeze_time(week_later):
         # After a week, the token is no longer valid
