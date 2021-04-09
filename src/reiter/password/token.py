@@ -1,8 +1,8 @@
+import abc
+import datetime
+import enum
 import hashlib
 import hmac
-import enum
-from abc import ABC, abstractmethod
-from datetime import date, timedelta
 
 
 Algorithm = enum.Enum(
@@ -12,16 +12,16 @@ Algorithm = enum.Enum(
 )
 
 
-class TokenFactory(ABC):
+class TokenFactory(abc.ABC):
     """A unique token factory
     """
 
-    @abstractmethod
-    def create(self, word: str):
+    @abc.abstractmethod
+    def generate(self, word: str):
         """returns a hex representation of a tokenized word.
         """
 
-    @abstractmethod
+    @abc.abstractmethod
     def verify(self, word: str, challenger: str):
         """returns a bool. True is tokenized word == challenged.
         False otherwise.
@@ -32,6 +32,8 @@ class HashTokenFactory(TokenFactory):
     """Autodeprecating token, based on hashlib's hash algorithms.
     The token is valid for a few days
     """
+    __slots__ = ('algorithm', 'secret', 'validity')
+
     secret: bytes  # Secret key
     validity: int  # Validity duration in days.
     algorithm: Algorithm
@@ -39,21 +41,23 @@ class HashTokenFactory(TokenFactory):
     def __init__(self, algorithm: str, secret: bytes, validity: int=3):
         self.algorithm = Algorithm[algorithm]
         self.secret = secret
-        self.validaty = validity
+        self.validity = validity
 
-    def create(self, word):
-        token = hmac.new(key=self.secret, digestmod=hashlib.sha256)
+    def generate(self, word):
+        token = hmac.new(
+            key=self.secret, digestmod=self.algorithm.value)
         token.update(word.encode('utf-8'))
-        token.update(str(date.today()).encode('utf-8'))
+        token.update(str(datetime.date.today()).encode('utf-8'))
         return token.hexdigest()
 
     def verify(self, word, challenger):
-        today = date.today()
-        basetoken = hmac.new(key=self.secret, digestmod=hashlib.sha256)
+        today = datetime.date.today()
+        basetoken = hmac.new(
+            key=self.secret, digestmod=self.algorithm.value)
         basetoken.update(word.encode('utf-8'))
         for n in range(self.validity):
             token = basetoken.copy()
-            token.update(str(today - timedelta(n)).encode('utf-8'))
+            token.update(str(today - datetime.timedelta(n)).encode('utf-8'))
             if token.hexdigest() == challenger:
                 return True
         return False
