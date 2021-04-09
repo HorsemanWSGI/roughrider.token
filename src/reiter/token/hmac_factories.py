@@ -1,15 +1,7 @@
 import abc
 import datetime
-import enum
-import hashlib
 import hmac
-
-
-Algorithm = enum.Enum(
-    'Algorithm', {
-        name: name for name in hashlib.algorithms_guaranteed
-    }
-)
+from reiter.token import Algorithm
 
 
 class TokenFactory(abc.ABC):
@@ -28,7 +20,7 @@ class TokenFactory(abc.ABC):
         """
 
 
-class HashTokenFactory(TokenFactory):
+class AutoDeprecatingTokenFactory(TokenFactory):
     """Autodeprecating token, based on hashlib's hash algorithms.
     The token is valid for a few days
     """

@@ -11,17 +11,17 @@ week_later = datetime.date(2021, 4, 16)
 
 
 def test_hashtokenfactory_instanciation():
-    factory = HashTokenFactory('md5', b'secret')
+    factory = AutoDeprecatingTokenFactory('md5', b'secret')
     assert factory.validity == 3
     assert factory.secret == b'secret'
     assert factory.algorithm == Algorithm['md5']
 
     with pytest.raises(KeyError):
-        HashTokenFactory('unknown', b'secret')
+        AutoDeprecatingTokenFactory('unknown', b'secret')
 
 
 def test_hashtokenfactory_generate_token():
-    factory = HashTokenFactory('md5', b'secret')
+    factory = AutoDeprecatingTokenFactory('md5', b'secret')
 
     with freeze_time(today):
         token = factory.generate('my word')
@@ -33,7 +33,7 @@ def test_hashtokenfactory_generate_token():
 
 
 def test_hashtokenfactory_verify_token():
-    factory = HashTokenFactory('md5', b'secret')
+    factory = AutoDeprecatingTokenFactory('md5', b'secret')
     with freeze_time(today):
         token = factory.generate('my word')
         assert token == 'd2b93d1507fcb56e301e02e2f7e0d60f'
