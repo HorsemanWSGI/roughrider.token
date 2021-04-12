@@ -1,7 +1,7 @@
 import abc
 import datetime
 import hmac
-from reiter.token import Algorithm
+from roughrider.token import Algorithm
 
 
 class TokenFactory(abc.ABC):

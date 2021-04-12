@@ -1,8 +1,8 @@
 import pytest
 import datetime
 from freezegun import freeze_time
-from reiter.token import Algorithm
-from reiter.token.hmac_factories import AutoDeprecatingTokenFactory
+from roughrider.token import Algorithm
+from roughrider.token.hmac_factories import AutoDeprecatingTokenFactory
 
 
 today = datetime.date(2021, 4, 9)
