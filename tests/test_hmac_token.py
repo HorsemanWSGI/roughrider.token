@@ -53,7 +53,6 @@ def test_tottokenfactory_challenge_token():
     # it won't validate as the deprecation is contained within the hash.
     factory.validity = 10800
     with freeze_time(two_hours_later):
-        # After a week, the token is now valid
         assert factory.challenge(token, 'my word') is False
 
 
@@ -81,6 +80,5 @@ def test_TOTP():
     # it won't validate as the deprecation is contained within the hash.
     factory.validity = 10800
     with freeze_time(two_hours_later):
-        # After a week, the token is now valid
         assert factory.challenge(token) is False
         assert token != factory.generate()
