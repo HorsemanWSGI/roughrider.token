@@ -44,7 +44,7 @@ class HashTokenFactory(TokenFactory):
     """
 
     @abc.abstractmethod
-    def challenge(self, payload: str, token: str) -> bool:
+    def challenge(self, token: str, payload: Any) -> bool:
         """Tokenized payload == token.
         """
 
