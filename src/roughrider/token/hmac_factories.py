@@ -1,8 +1,6 @@
+import oath
 import hmac
-import hashlib
-import math
-import time
-from typing import Optional
+from typing import Optional, Literal
 from roughrider.token.meta import HashTokenFactory, HashAlgorithm
 from roughrider.token.secret import generate_secret
 
@@ -10,50 +8,53 @@ from roughrider.token.secret import generate_secret
 class TOTTokenFactory(HashTokenFactory):
     """Time-based One-Time token
     """
-    __slots__ = ('algorithm', 'secret', 'validity')
+    __slots__ = ('algorithm', 'secret', 'TTL')
 
     secret: str  # Secret key
-    validity: int  # Validity duration in seconds.
+    TTL: int  # TTL duration in seconds.
     algorithm: HashAlgorithm
 
     def __init__(self,
                  algorithm: str = 'sha256',
-                 validity: int = 30,
-                 length: int = 8,
-                 secret: Optional[bytes] = None):
+                 TTL: int = 30,
+                 length: Literal[4, 6, 7, 8] = 8,
+                 secret: Optional[str] = None):
         self.algorithm = HashAlgorithm[algorithm]
-        self.validity = validity
+        self.TTL = TTL
         self.length = length
         if secret is None:
-            secret = generate_secret()
+            secret = generate_secret(as_bytes=False)
         self.secret = secret
 
-    def _truncation(self, raw_key: hmac.HMAC, length: int) -> str:
-        bitstring = bin(int(raw_key.hexdigest(), base=16))
-        last_four_bits = bitstring[-4:]
-        offset = int(last_four_bits, base=2)
-        chosen_32_bits = bitstring[offset * 8 : offset * 8 + 32]
-        full_totp = str(int(chosen_32_bits, base=2))
-        return full_totp[-length:]
+    def _key_from_payload(self, payload: str) -> bytes:
+        return hmac.new(
+            key=self.secret,
+            msg=payload.encode('utf-8'),
+            digestmod=self.algorithm.value
+        ).hexdigest()
 
     def generate(self, payload: str = None):
-        now_in_seconds = math.floor(time.time())
-        t = math.floor(now_in_seconds / self.validity)
         if payload is not None:
             secret = hmac.new(
                 key=self.secret,
                 msg=payload.encode('utf-8'),
                 digestmod=self.algorithm.value
-            ).digest()
+            ).hexdigest()
         else:
             secret = self.secret
-
-        hashed = hmac.new(
+        return oath.totp(
             secret,
-            t.to_bytes(length=8, byteorder="big"),
-            self.algorithm.value
+            format=f'dec{self.length}',
+            period=self.TTL
         )
-        return self._truncation(hashed, self.length)
 
-    def challenge(self, token, password=None):
-        return self.generate(password) == token
+    def challenge(self, token, payload: str = None):
+        secret = (self._key_from_payload(payload) if payload is not None
+                  else self.secret)
+        result, drift = oath.accept_totp(
+            secret,
+            token,
+            format=f'dec{self.length}',
+            period=self.TTL
+        )
+        return result
