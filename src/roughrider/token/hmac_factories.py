@@ -23,7 +23,7 @@ class TOTTokenFactory(HashTokenFactory):
         self.TTL = TTL
         self.length = length
         if secret is None:
-            secret = generate_secret(as_bytes=False)
+            secret = generate_secret()
         self.secret = secret
 
     def _key_from_payload(self, payload: str) -> bytes:
@@ -34,14 +34,8 @@ class TOTTokenFactory(HashTokenFactory):
         ).hexdigest()
 
     def generate(self, payload: str = None):
-        if payload is not None:
-            secret = hmac.new(
-                key=self.secret,
-                msg=payload.encode('utf-8'),
-                digestmod=self.algorithm.value
-            ).hexdigest()
-        else:
-            secret = self.secret
+        secret = (self._key_from_payload(payload) if payload is not None
+                  else self.secret)
         return oath.totp(
             secret,
             format=f'dec{self.length}',
