@@ -1,23 +1,10 @@
-import secrets
 import hmac
 import hashlib
 import math
 import time
-from typing import AnyStr
+from typing import Optional
 from roughrider.token.meta import HashTokenFactory, HashAlgorithm
-
-
-def generate_shared_secret(as_bytes: bool = True) -> AnyStr:
-    """A shared key "should be chosen at random or using a
-    cryptographically strong pseudorandom generator properly seeded
-    with a random value".
-
-    A shared key must be stored encrypted and decrypted only on for
-    password validation and safe copy to a trusted target.
-    """
-    if as_bytes:
-        return secrets.token_bytes(16)
-    return secrets.token_hex(16)
+from roughrider.token.secret import generate_secret
 
 
 class TOTTokenFactory(HashTokenFactory):
@@ -30,14 +17,16 @@ class TOTTokenFactory(HashTokenFactory):
     algorithm: HashAlgorithm
 
     def __init__(self,
-                 algorithm: str,
-                 secret: bytes,
+                 algorithm: str = 'sha256',
                  validity: int = 30,
-                 length: int = 8):
+                 length: int = 8,
+                 secret: Optional[bytes] = None):
         self.algorithm = HashAlgorithm[algorithm]
-        self.secret = secret
         self.validity = validity
         self.length = length
+        if secret is None:
+            secret = generate_secret()
+        self.secret = secret
 
     def _truncation(self, raw_key: hmac.HMAC, length: int) -> str:
         bitstring = bin(int(raw_key.hexdigest(), base=16))
