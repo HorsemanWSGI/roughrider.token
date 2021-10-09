@@ -23,7 +23,7 @@ class TOTTokenFactory(HashTokenFactory):
         self.TTL = TTL
         self.length = length
         if secret is None:
-            secret = generate_secret()
+            secret = generate_secret(as_bytes=False)
         self.secret = secret
 
     def _key_from_payload(self, payload: str) -> bytes:
